@@ -7,16 +7,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   prettierConfig,
   {
-    ignores: [
-      'dist/',
-      'node_modules/',
-      '.aws-sam/',
-      'assets/js/',
-      'archive/',
-      'scripts/',
-      'api/',
-      'src/tiptap-notes.js',
-    ],
+    ignores: ['dist/', 'node_modules/', '.aws-sam/', 'assets/js/', 'archive/', 'scripts/', 'src/tiptap-notes.js'],
   },
   {
     languageOptions: {
@@ -49,6 +40,8 @@ export default tseslint.config(
         crypto: 'readonly',
         TextEncoder: 'readonly',
         confirm: 'readonly',
+        AbortSignal: 'readonly',
+        AbortController: 'readonly',
         // D3 loaded via CDN
         d3: 'readonly',
       },
@@ -57,6 +50,21 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
+  // Lambda handlers under `api/` run on Node, not the browser. `process` +
+  // `Buffer` are ambient globals there. Also: `console.log` is the standard
+  // CloudWatch logging path, so we drop the `no-console` restriction.
+  {
+    files: ['api/**/*.ts'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        Buffer: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
     },
   },
 )
